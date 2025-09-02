@@ -1,0 +1,949 @@
+Project: SchoolProject
+
+---
+
+Folder: objects\attack
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+switch(global.swordType){
+	case "wooden":
+        sprite_index = woodSlash;
+        damage = 1;
+    break;
+    
+    case "steel":
+        sprite_index = steelSlash;
+        damage = 2;
+    break;
+}
+
+
+
+---
+
+Folder: objects\attack
+File: Other_7.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+instance_destroy();
+
+
+---
+
+Folder: objects\dialogue
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+messages=[];
+currentMessage=-1;
+currentChar=0;
+drawMessage="";
+
+char_speed=0.5;
+input_key=vk_space;
+
+guiW = display_get_gui_width();
+guiH = display_get_gui_height();
+
+---
+
+Folder: objects\dialogue
+File: Draw_64.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+var dx=0;
+var dy= guiH *.7;
+var boxw = guiW;
+var boxh = guiH - dy;
+
+draw_sprite_stretched(bar, 0, dx, dy, boxw, boxh);
+
+dx+=16;
+dy+=16;
+
+draw_set_font(Font1);
+
+var name = messages[currentMessage].name;
+draw_set_color(global.char_colors[$ name]);
+draw_text(dx, dy, name);
+
+draw_set_color(c_white);
+
+dy+=40
+draw_text_ext(dx, dy, drawMessage, -1, boxw-dx*2);
+
+---
+
+Folder: objects\dialogue
+File: Step_2.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if(currentMessage<0){
+    global.gameRunning=true;
+    exit;
+}    
+global.gameRunning=false;
+
+var str = messages[currentMessage].msg;
+
+if(currentChar<string_length(str)){
+    currentChar +=char_speed * (1+ keyboard_check(input_key));
+    drawMessage = string_copy(str, 0, currentChar);
+}
+else if(keyboard_check_pressed(input_key)){
+    currentMessage++;
+    if(currentMessage>=array_length(messages)){
+        instance_destroy();
+        global.gameRunning=true;
+    }
+    else {
+    	currentChar=0;
+    }
+}
+
+
+---
+
+Folder: objects\enemyAttackParent
+File: Collision_attack.gml
+Modified: 2025-09-02
+
+instance_destroy();
+
+---
+
+Folder: objects\enemyAttackParent
+File: Create_0.gml
+Modified: 2025-09-02
+
+damage = 1;
+
+---
+
+Folder: objects\enemyAttackParent
+File: Other_7.gml
+Modified: 2025-09-02
+
+instance_destroy();
+
+
+---
+
+Folder: objects\enemyParent
+File: Alarm_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+alarm[0]=60;
+
+
+---
+
+Folder: objects\enemyParent
+File: Alarm_1.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+if global.gameRunning = false exit;
+image_blend = c_white;
+
+if(hp<=0){
+    randomChance = irandom_range(0,5);
+    if(randomChance==1) instance_create_depth(x,y,depth,heartPickUp);
+    // (not implented yet) if(randomChance==2) instance_create_depth(x,y,depth,arrowPickUp);  
+    instance_destroy();
+    
+}
+
+---
+
+Folder: objects\enemyParent
+File: Collision_attack.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if global.gameRunning = false exit;
+if(alarm[1]<0){
+    /*
+	Sound effects
+	if(bodyType=="soft") audio_play_sound(swordHitsSoft,100,false);
+    else if(bodyType=="hard") audio_play_sound(swordHitsHard,100,false);   
+	*/
+    hp-=other.damage;
+    image_blend = c_red;
+    kbX = sign(x-other.x);
+    kbY = sign(y-other.y);
+    alarm[1]=20;
+}
+
+
+---
+
+Folder: objects\enemyParent
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+if global.gameRunning = false exit;
+targetX = x;
+targetY = y;
+
+alarm[0] = 60;
+
+tilemap = layer_tilemap_get_id("walls");
+
+kbX = 0;
+kbY = 0;
+
+randomChance = -1;
+facing = 0;
+
+
+---
+
+Folder: objects\enemyParent
+File: Step_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+if(alarm[1] > 0) exit;
+facing = point_direction(x,y,targetX,targetY);
+
+if(instance_exists(player) and distance_to_object(player) < range){
+    targetX = player.x;
+    targetY = player.y;
+}
+else {
+	targetX = random_range(xstart - 100, xstart + 100);
+    targetY = random_range(ystart - 100, ystart + 100);
+}
+
+---
+
+Folder: objects\enemyParent
+File: Step_2.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if global.gameRunning=false exit;
+    if(image_blend=c_red) and (alarm[1]<0) alarm[1] = 60;
+var hor = clamp(targetX - x, -1, 1);
+var ver = clamp(targetY - y, -1, 1);
+move_and_collide(hor * moveSpeed, ver * moveSpeed, tilemap);
+
+if(alarm[1]>=0){
+    targetX = x + kbX;
+    targetY = y + kbY;
+}
+
+
+---
+
+Folder: objects\evilPlayer
+File: Draw_64.gml
+Modified: 2025-09-02
+
+draw_text(50,50,facing);
+
+---
+
+Folder: objects\evilPlayer
+File: Step_0.gml
+Modified: 2025-09-02
+
+// Inherit the parent event
+ if !global.gameRunning exit;
+    
+event_inherited();
+if(instance_exists(evilPlayerAttack)) exit;
+    
+if(facing < 45 or facing > 315) sprite_index = evilRunRight;
+    
+else if(facing > 45 and facing < 135) sprite_index = evilRunUp;
+    
+else if(facing > 135 and facing < 225) sprite_index = evilRunLeft;
+    
+else if(facing > 225 and facing < 315 ) sprite_index = evilRunDown;
+
+if(instance_exists(player) and distance_to_object(player) < 8){
+    if(sprite_index = evilRunDown){
+        sprite_index = evilIdleDown;
+        var evil = instance_create_depth(x,y+15,depth,evilPlayerAttack);
+        evil.image_angle = facing;
+        evil.damage = damage;
+    }
+    else if(sprite_index = evilRunLeft) {
+        sprite_index = evilIdleLeft;
+        var evil = instance_create_depth(x-15,y,depth,evilPlayerAttack);
+        evil.image_angle = facing;
+        evil.damage = damage;
+    }        
+    else if(sprite_index = evilRunUp){
+        sprite_index = evilIdleUp;
+        var evil = instance_create_depth(x,y-15,depth,evilPlayerAttack);
+        evil.image_angle = facing;
+        evil.damage = damage;
+     }   
+    else if(sprite_index = evilRunRight){
+         sprite_index = evilIdleRight;
+        var evil = instance_create_depth(x+15,y,depth,evilPlayerAttack);
+        evil.image_angle = facing;
+        evil.damage = damage;
+    }
+    
+    
+}
+
+---
+
+Folder: objects\evilPlayer
+File: Step_2.gml
+Modified: 2025-09-02
+
+if(instance_exists(evilPlayerAttack)) exit;
+event_inherited();
+
+
+
+
+---
+
+Folder: objects\extraButton
+File: Mouse_4.gml
+Modified: 2025-09-02
+
+room_goto(devRoom);
+
+global.gameRunning = true;
+
+global.musicChanged=true;
+global.incomingMusic=FieldSong;
+
+---
+
+Folder: objects\fadeObject
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+fadeSpeed = .008;
+image_alpha = 1;
+persistent = true;
+
+---
+
+Folder: objects\fadeObject
+File: Other_5.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+image_alpha = 1;
+
+---
+
+Folder: objects\fadeObject
+File: Step_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+image_alpha -= fadeSpeed;
+
+---
+
+Folder: objects\Game
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+persistent = true;
+
+global.backgroundMusic = MenuTheme;
+global.gameRunning = true;
+global.swordObtained = false;
+global.swordType = "";
+global.playerTotalHealth = 10;
+global.playerHealth = 10;
+global.playerDamage = 1;
+
+---
+
+Folder: objects\Game
+File: Draw_64.gml
+Modified: 2025-09-02
+
+var cam_x = camera_get_view_x(view_camera[0]);
+var cam_y = camera_get_view_y(view_camera[0]);
+if(keyboard_check_pressed(vk_escape) and global.gameRunning){
+    global.gameRunning = false;
+    instance_create_depth(cam_x+160,cam_y+90,-99999999, pauseVeil);
+    instance_create_depth(cam_x+160, cam_y+70,-10000000000000, resumeButton);
+    instance_create_depth(cam_x+160, cam_y+110,-10000000000000, quitButton);
+}
+
+---
+
+Folder: objects\heartPickUp
+File: Collision_player.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if(global.playerTotalHealth>global.playerHealth)
+global.playerHealth+=1;
+
+instance_destroy();
+
+---
+
+Folder: objects\heartPickUp
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+
+
+---
+
+Folder: objects\mainMenuButtonParent
+File: Create_0.gml
+Modified: 2025-09-02
+
+draw_self();
+
+draw_set_color(c_white);
+draw_set_font(Font1);
+
+draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
+
+draw_text(x,y,buttonText);
+
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);    
+
+---
+
+Folder: objects\mainMenuButtonParent
+File: Mouse_10.gml
+Modified: 2025-09-02
+
+image_alpha = 0.4;
+
+---
+
+Folder: objects\mainMenuButtonParent
+File: Mouse_11.gml
+Modified: 2025-09-02
+
+image_alpha = 1;
+
+---
+
+Folder: objects\mainMenuQuit
+File: Mouse_4.gml
+Modified: 2025-09-02
+
+game_end();
+
+---
+
+Folder: objects\musicPlayer
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+global.musicChanged=false;
+global.incomingMusic=MenuTheme;
+
+persistent=true;
+
+audio_play_sound(global.backgroundMusic, 100, true);
+
+previousSong = global.backgroundMusic;
+
+---
+
+Folder: objects\musicPlayer
+File: Step_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+if(global.musicChanged=true){
+    audio_stop_sound(global.backgroundMusic);
+    global.backgroundMusic=global.incomingMusic;
+    audio_play_sound(global.backgroundMusic, 100, true);
+    global.musicChanged=false;
+}
+
+---
+
+Folder: objects\npcParent
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+inputKey = vk_space;
+canTalk = false;
+
+
+
+---
+
+Folder: objects\npcParent
+File: Draw_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+draw_self();
+if(canTalk and !instance_exists(dialogue)){
+    draw_sprite(speechBubble, 0, x, y - 16);
+}
+
+
+---
+
+Folder: objects\npcParent
+File: Step_1.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if(instance_exists(dialogue)) or (distance_to_object(enemyParent) < 20){
+    canTalk=false; 
+    exit;
+}
+if(instance_exists(player) and distance_to_object(player) < 8){
+    canTalk=true;
+    if(keyboard_check_pressed(inputKey)) createDialogueScript(dialog);
+}
+else {
+	canTalk=false;
+}
+
+
+---
+
+Folder: objects\npcParent
+File: Step_2.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+
+
+---
+
+Folder: objects\pauseVeil
+File: Create_0.gml
+Modified: 2025-09-02
+
+image_alpha = 0.5;
+
+---
+
+Folder: objects\pauseVeil
+File: Step_2.gml
+Modified: 2025-09-02
+
+if(global.clicked=true) instance_destroy();
+
+---
+
+Folder: objects\playButton
+File: Mouse_4.gml
+Modified: 2025-09-02
+
+room_goto(initialRoom);
+
+global.gameRunning = true;
+
+global.musicChanged=true;
+global.incomingMusic=FieldSong;
+
+---
+
+Folder: objects\player
+File: Alarm_0.gml
+Modified: 2025-09-02
+
+if(global.gameRunning=false) exit;
+image_blend = c_white;
+
+---
+
+Folder: objects\player
+File: Collision_enemyAttackParent.gml
+Modified: 2025-09-02
+
+if(global.gameRunning = false) exit;
+if(alarm[0]<0){
+    global.playerHealth-=other.damage;
+    alarm[0]=60;
+    image_blend=c_red;
+    if(global.playerHealth<=0){
+        room_restart();
+        global.playerHealth=global.playerTotalHealth;
+    }
+}
+
+---
+
+Folder: objects\player
+File: Collision_enemyParent.gml
+Modified: 2025-09-02
+
+if(global.gameRunning = false) exit;
+if(alarm[0]<0){
+    global.playerHealth-=other.damage;
+    alarm[0]=60;
+    image_blend=c_red;
+    if(global.playerHealth<=0){
+        room_restart();
+        global.playerHealth=global.playerTotalHealth;
+    }
+}
+
+---
+
+Folder: objects\player
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+facing = 1;
+moveSpeed = 1;
+damage = 1;
+tilemap = layer_tilemap_get_id("walls");
+tilemap2 = layer_tilemap_get_id("collide");
+
+---
+
+Folder: objects\player
+File: Draw_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+draw_self();
+
+---
+
+Folder: objects\player
+File: Draw_64.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+for(var i=0; i<global.playerTotalHealth; i++){
+    if(i==0) draw_sprite_stretched(heartEmpty, 0, 16, 16, 32, 32);
+    else draw_sprite_stretched(heartEmpty, 0, 16*(2*i)+16, 16, 32, 32);
+}
+
+for(var j=0; j<global.playerHealth; j++){
+    if(j==0) draw_sprite_stretched(heartFull, 0, 16, 16, 32, 32);
+    else draw_sprite_stretched(heartFull, 0, 16*(2*j)+16, 16, 32, 32);
+}
+
+
+---
+
+Folder: objects\player
+File: Step_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+if(!global.gameRunning) exit;
+
+var moveHor = keyboard_check(ord("D")) - keyboard_check(ord("A"));
+var moveVer = keyboard_check(ord("S")) - keyboard_check(ord("W"));
+
+if(keyboard_check(vk_shift)){
+	moveSpeed=2.4;
+}
+
+else{
+	moveSpeed=1;
+}
+
+if(moveHor!=0 or moveVer!=0) and !instance_exists(attack) and moveSpeed==1{
+    if(moveHor>0) sprite_index = playerWalkRight;
+    else if(moveHor<0) sprite_index = playerWalkLeft;    
+    else if(moveVer>0) sprite_index = playerWalkDown;
+    else if(moveVer<0) sprite_index = playerWalkUp;
+    facing = point_direction(0,0, moveHor, moveVer); 
+}
+else if((moveHor!=0 or moveVer!=0) and !instance_exists(attack) and moveSpeed>1){
+	if(moveHor>0) sprite_index = playerRunRight;
+    else if(moveHor<0) sprite_index = playerRunLeft;    
+    else if(moveVer>0) sprite_index = playerRunDown;
+    else if(moveVer<0) sprite_index = playerRunUp;
+    facing = point_direction(0,0, moveHor, moveVer); 
+}
+if(moveHor==0 and moveVer==0) or instance_exists((attack)){
+    if(sprite_index == playerWalkRight) or (sprite_index == playerRunRight) sprite_index = playerIdleRight; 
+    else if(sprite_index == playerWalkLeft)  or (sprite_index == playerRunLeft) sprite_index = playerIdleLeft; 
+    else if(sprite_index == playerWalkDown)  or (sprite_index == playerRunDown) sprite_index = playerIdleDown;
+    else if(sprite_index == playerWalkUp)  or (sprite_index == playerRunUp) sprite_index = playerIdleUp; 
+}
+
+if instance_exists(attack) exit;
+
+move_and_collide(moveHor*moveSpeed,moveVer*moveSpeed,tilemap,undefined, undefined,undefined,  moveSpeed, moveSpeed);
+
+if(keyboard_check_pressed(vk_space) and global.swordObtained){
+    var sweep= instance_create_depth(player.x,player.y,depth, attack);
+    sweep.image_angle = facing;
+    sweep.damage *= damage;
+}
+
+---
+
+Folder: objects\player
+File: Step_2.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+if(global.gameRunning=false) exit;
+with(all){
+    depth= -bbox_bottom;
+}
+
+
+
+---
+
+Folder: objects\quitButton
+File: Mouse_4.gml
+Modified: 2025-09-02
+
+game_end();
+
+---
+
+Folder: objects\rainActivator
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+Rain = part_system_create();
+part_system_depth(Rain,0);
+part_system_position(Rain, 0, 0);
+
+raindrop = part_type_create();
+part_type_shape(raindrop,pt_shape_line);
+part_type_scale(raindrop,.7,.7);
+part_type_size(raindrop,0.2,0.2,0,0);
+part_type_color2(raindrop,c_gray,c_blue);
+part_type_alpha2(raindrop,0.4,0.4);
+part_type_speed(raindrop,09,09,0,0);
+part_type_direction(raindrop,260,260,0,0);
+part_type_gravity(raindrop,0,260);
+part_type_orientation(raindrop,-10,-10,0,0,true);
+part_type_life(raindrop,200,200);
+part_type_blend(raindrop,false);
+
+rain_emitter = part_emitter_create(Rain);
+part_emitter_region(Rain, rain_emitter, -100, room_width+ 100, 0, 0, ps_shape_line, ps_distr_linear);
+
+part_emitter_stream(Rain,rain_emitter,raindrop,30);
+repeat (1 * 6) {
+part_system_update(Rain);
+}
+
+
+
+---
+
+Folder: objects\resumeButton
+File: Create_0.gml
+Modified: 2025-09-02
+
+global.clicked = false;
+
+---
+
+Folder: objects\resumeButton
+File: Draw_0.gml
+Modified: 2025-09-02
+
+draw_self();
+
+draw_set_font(Font1);
+
+draw_set_halign(fa_center);
+draw_set_valign(fa_middle);
+
+draw_text(x,y,"Resume");
+
+draw_set_halign(fa_left);
+draw_set_valign(fa_top);
+
+---
+
+Folder: objects\resumeButton
+File: Mouse_10.gml
+Modified: 2025-09-02
+
+image_alpha = 0.4;
+
+---
+
+Folder: objects\resumeButton
+File: Mouse_11.gml
+Modified: 2025-09-02
+
+image_alpha = 1;
+
+---
+
+Folder: objects\resumeButton
+File: Mouse_4.gml
+Modified: 2025-09-02
+
+global.gameRunning = true;
+
+global.clicked = true;
+
+instance_destroy();
+
+---
+
+Folder: objects\steelSwordPickup
+File: Collision_player.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+global.swordObtained = true;
+global.swordType = "steel";
+instance_destroy();
+
+---
+
+Folder: objects\steelSwordPickup
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+
+
+---
+
+Folder: objects\woodSwordPickup
+File: Collision_player.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+global.swordObtained = true;
+global.swordType = "wooden";
+instance_destroy();
+
+---
+
+Folder: objects\woodSwordPickup
+File: Create_0.gml
+Modified: 2025-09-02
+
+/// @description Insert description here
+// You can write your code in this editor
+
+
+
+
+---
+
+Folder: scripts\createDialogueScript
+File: createDialogueScript.gml
+Modified: 2025-09-02
+
+function createDialogueScript(messages){
+if (instance_exists(dialogue)) return;
+
+    var inst = instance_create_depth(0,0,0, dialogue);
+    inst.messages = messages;
+    inst.currentMessage = 0;
+}
+
+char_colors = {
+    "testing": c_olive,
+    "You": c_red,
+}
+
+testing = [
+{
+    name: "testing",
+    msg: "Testing, testing.",
+},
+  
+]
+
+---
+
