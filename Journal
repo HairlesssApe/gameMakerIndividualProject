@@ -8,17 +8,29 @@ Exploding enemies, bows, blacksmith sprites, new room, bushes, trees, more anima
 
 9/30/25
 Added:
-new animal sprites, plant sprites, new rooms
+new animal sprites, plant sprites, new rooms.
 
 10/1/25
 Added:
-new animal sprites, new weapon system, working bow ammo system
+new animal sprites, new weapon system, working bow ammo system.
 
 10/2/25
-Helped the others with their projects
+Helped the others with their projects.
 
 10/3/25
 Absent
 
 10/6/25
-Created a new room with several animals, fixed bugs, helped others
+Created a new room with several animals, fixed bugs, helped others.
+
+10/7/25
+Began work on a new quest for the farmer.
+
+10/8/25
+Created a new room that contains the farm with plants and animals.
+
+10/9/25
+Began work on a golem boss that requires certain variables to be met before becoming available to fight.
+
+10/10/25
+The golem boss has its own room that traps the player when the fight is activated and requires the player to beat the boss before being allowed to progress further.
