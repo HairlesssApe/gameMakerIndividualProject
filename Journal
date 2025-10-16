@@ -34,3 +34,12 @@ Began work on a golem boss that requires certain variables to be met before beco
 
 10/10/25
 The golem boss has its own room that traps the player when the fight is activated and requires the player to beat the boss before being allowed to progress further.
+
+10/14/25
+Made a cutscene that shows how the boss will attack and sets the player in the center of the room to start the battle.
+
+10/15/25
+Absent
+
+10/16/25
+Spent time debugging areas of the game and finished the boss fight and made a mechanic where the boss can destroy trees if it gets too close to one.
