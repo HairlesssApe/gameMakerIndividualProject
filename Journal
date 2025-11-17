@@ -94,3 +94,14 @@ Revised early content and recorded video
 
 11/10/25
 We began planning for our next phase and worked on the story.
+
+11/11/25
+Fixed out of bounds issue occuring because of a lack of walls. Remedied by invisible walls in the location
+11/12/25
+Begin working on the visuals and layout of the forest
+
+11/13/25
+Absent
+
+11/14/25
+Began building the first forest room and creating tree objects that enemies will be able to interact with and collide.
