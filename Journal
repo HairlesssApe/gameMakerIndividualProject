@@ -123,3 +123,14 @@ Attempted to work with Timothy to explain the purpose of each room but he refuse
 
 11/24/25
 Began working on the second room of the forest and implemented a dodge mechanic. Currently, the dodge only makes the player dash in a direction but I will make it so the player is invincible during the dodge.
+
+11/25/25
+The dodge will no longer begin on an incorrect frame resulting in wonky dodge distance and time
+
+12/1/25
+Some houses used to allow the player to clip into them, effectively getting stuck, the problem is now solved.
+
+12/2/25
+Began working on a new place where the player can meet an NPC for more info on the boss of the area.
+
+12/3/25
